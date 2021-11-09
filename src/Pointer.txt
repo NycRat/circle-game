@@ -1,0 +1,39 @@
+// noo
+
+
+import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+
+import javax.swing.event.MouseInputListener;
+
+import ky.Asset;
+import ky.AudioPlayer;
+import ky.CollisionEntity;
+import ky.Vector2D;
+
+public class Pointer extends CollisionEntity {
+
+    private static Vector2D position = new Vector2D(200, 200);
+    private static int layer = 3;
+    private static Asset cursor;
+    private static AudioPlayer clickSound;
+
+    public Pointer() {
+        super(position, 1, 1, layer);
+        start();
+    }
+
+    public void start () {
+        cursor = new Asset("assets/cursor.png", new Vector2D(-5, -5), 3);
+        cursor.setVisible(true);
+        add(cursor);
+
+        clickSound = new AudioPlayer("assets/click.wav");
+
+    }
+
+    public void update (double deltaTime, ArrayList<Integer> woah) {
+        System.out.println("something");
+        
+    }
+}

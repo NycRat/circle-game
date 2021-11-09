@@ -10,7 +10,6 @@ public class Entity {
 	
 	
 	private Vector2D position, velocity = new Vector2D(0, 0);
-	private double rotation = 0;
 	private String name = "";
 	private boolean visible = false;
 	private int layer;
