@@ -2,6 +2,8 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.Random;
 
 import javax.swing.event.MouseInputListener;
 
@@ -13,6 +15,7 @@ import ky.Vector2D;
 
 public class Main extends KYscreen implements MouseInputListener {
     public static void main (String[] args) {
+        System.setProperty("prism.allowhidpi", "false");
         new Main();
     }
 
@@ -21,9 +24,19 @@ public class Main extends KYscreen implements MouseInputListener {
     int frames=0;
     long lastSec = System.currentTimeMillis();
     Text fpsText;
+    Text scoreText;
     static int width = 1920;
     static int height = 1080;
-    Asset cursor;
+    Asset background;
+    int score=0;
+
+    final int maxCircles=10;
+    int curCircles=0;
+    Random randX;
+    Random randY;
+
+    Cursor cursor;
+    ArrayList <Circle> circles;
 
     public Main() {
         super(width, height, false, 0);
@@ -44,38 +57,81 @@ public class Main extends KYscreen implements MouseInputListener {
         fpsText.setVisible(true);
         add(fpsText);
 
+        scoreText = new Text("Score: 0", new Font ("Arial", Font.PLAIN, 20), Color.black, new Vector2D(70, 45), 140, 30, 2);
+        scoreText.setVisible(true);
+        add(scoreText);
+
         clickSound = new AudioPlayer("assets/click.wav");
-        cursor = new Asset("assets/cursor.png", new Vector2D(0, 0), 3);
-        cursor.setVisible(true);
+
+        cursor = new Cursor();
         add(cursor);
+
+        background = new Asset("assets/background.png", new Vector2D(1920/2,1080/2), 0);
+        background.setVisible(true);
+        add(background);
 
         addMouseListener(this);
         addMouseMotionListener(this);
 
+        randX = new Random();
+        randY = new Random();
+
+        circles = new ArrayList<Circle>();
+
         setDebugMode(false);
     }
 
+
     @Override
     public void update() {
-
         if (System.currentTimeMillis() >= lastSec+1000) {
             fpsText.setText("FPS: " + frames);
             frames=0;
             lastSec = System.currentTimeMillis();
         }
 
-
-
-
+        if (curCircles < maxCircles) {
+            circles.add(new Circle(new Vector2D((randX.nextDouble(1920-80)+80/2)/1.25, (randY.nextDouble(1080-80)+80)/1.25), 80,80));
+            add(circles.get(circles.size()-1));
+            circles.get(circles.size()-1).setVisible(true);
+            curCircles++;
+        }
         frames++;
     }
+
+    @Override
+    public void mousePressed(MouseEvent e) {
+        clickSound.setTime(0,0,35);
+        clickSound.play();
+        for (int i=circles.size()-1; i>=0; i--){
+            if (cursor.inCircle(circles.get(i).getX(), circles.get(i).getY(), circles.get(i).getHeight())) {
+                score++;
+                scoreText.setText("Score: " + score);
+                curCircles--;
+                circles.get(i).delete();
+                circles.remove(i);
+                break;
+            }
+        }
+        
+    }
+
+    @Override
+    public void mouseMoved(MouseEvent e) {
+        cursor.setPos(e.getX(), e.getY());
+    }
+
+    @Override
+    public void mouseDragged(MouseEvent e) {
+        cursor.setPos(e.getX(), e.getY());
+    }
+
 
     @Override
     public void keyPressed(int keyCode) {
         if (keyCode == KeyEvent.VK_ESCAPE) {
             System.exit(0);
         }
-        
     }
 
     @Override
@@ -89,25 +145,8 @@ public class Main extends KYscreen implements MouseInputListener {
     }
 
 
-
-    @Override
-    public void mouseMoved(MouseEvent e) {
-        cursor.setPos(e.getX()-12, e.getY()-12);
-    }
-    @Override
-    public void mouseDragged(MouseEvent e) {
-        cursor.setPos(e.getX()-12, e.getY()-12);
-    }
-
     @Override
     public void mouseClicked(MouseEvent e) {
-        
-    }
-
-    @Override
-    public void mousePressed(MouseEvent e) {
-        clickSound.setTime(0,0,35);
-        clickSound.play();
         
     }
 
