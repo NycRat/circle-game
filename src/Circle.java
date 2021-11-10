@@ -4,7 +4,7 @@ import ky.Asset;
 public class Circle extends Asset {
 
     public Circle(Vector2D position, int width, int height) {
-        super("assets/circle.png", position, width, height, 2);
+        super("assets/circle.png", position, width, height, 1);
     }
 
     // circleAsset = new Asset("assets/circle.png", new Vector2D(0, 0), 2);

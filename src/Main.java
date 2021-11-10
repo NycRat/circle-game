@@ -28,6 +28,7 @@ public class Main extends KYscreen implements MouseInputListener {
     static int width = 1920;
     static int height = 1080;
     Asset background;
+    Music musicAsset;
     int score=0;
 
     final int maxCircles=10;
@@ -47,11 +48,15 @@ public class Main extends KYscreen implements MouseInputListener {
         setFullScreen(true);
         setCursorVisible(false);
 
-        backgroundMusic = new AudioPlayer("assets/Chopin - Nocturne op9 No2.wav");
-        // backgroundMusic = new AudioPlayer("assets/Nightmare2.m4a");
-        backgroundMusic.setTime(0, 2, 0);
-        backgroundMusic.setLoop(true);
-        backgroundMusic.play();
+        // backgroundMusic = new AudioPlayer("assets/Chopin - Nocturne op9 No2.wav");
+        // // backgroundMusic = new AudioPlayer("assets/Nightmare2.m4a");
+        // backgroundMusic.setTime(0, 2, 0);
+        // backgroundMusic.setLoop(true);
+        // backgroundMusic.play();
+
+        musicAsset = new Music();
+        musicAsset.setVisible(true);
+        add(musicAsset);
 
         fpsText = new Text("FPS: ?", new Font ("Arial", Font.PLAIN, 20), Color.black, new Vector2D(70, 15), 140, 30, 2);
         fpsText.setVisible(true);
@@ -129,8 +134,19 @@ public class Main extends KYscreen implements MouseInputListener {
 
     @Override
     public void keyPressed(int keyCode) {
-        if (keyCode == KeyEvent.VK_ESCAPE) {
-            System.exit(0);
+        switch (keyCode) {
+            case KeyEvent.VK_ESCAPE:
+                System.exit(0);
+                break;
+            case KeyEvent.VK_M:
+                musicAsset.mute();
+                break;
+            case KeyEvent.VK_UP:
+                musicAsset.increaseVolume();
+                break;
+            case KeyEvent.VK_DOWN:
+                musicAsset.decreaseVolume();
+                break;
         }
     }
 
