@@ -46,7 +46,6 @@ public class Music extends Asset {
             musicPlayer.setVolume(-8*3);
             setImageIndex(1);
         } else {
-            musicPlayer.pause();
             musicPlayer.setVolume(-80);
             setImageIndex(0);
         }

@@ -31,12 +31,14 @@ public class Main extends KYscreen implements MouseInputListener {
     Music musicAsset;
     int score=0;
 
-    final int maxCircles=10;
-    int curCircles=0;
+    final int maxBad=5;
+    final int maxGood=10;
+    int curBad=0;
+    int curGood=0;
     Random randX;
     Random randY;
 
-    Cursor cursor;
+    Asset cursor;
     ArrayList <Circle> circles;
 
     public Main() {
@@ -47,12 +49,7 @@ public class Main extends KYscreen implements MouseInputListener {
     public void start() {
         setFullScreen(true);
         setCursorVisible(false);
-
-        // backgroundMusic = new AudioPlayer("assets/Chopin - Nocturne op9 No2.wav");
-        // // backgroundMusic = new AudioPlayer("assets/Nightmare2.m4a");
-        // backgroundMusic.setTime(0, 2, 0);
-        // backgroundMusic.setLoop(true);
-        // backgroundMusic.play();
+        setAlwaysOnTop(true);
 
         musicAsset = new Music();
         musicAsset.setVisible(true);
@@ -68,7 +65,8 @@ public class Main extends KYscreen implements MouseInputListener {
 
         clickSound = new AudioPlayer("assets/click.wav");
 
-        cursor = new Cursor();
+        cursor = new Asset("assets/cursor.png", new Vector2D(0,0), 3);
+        cursor.setVisible(true);
         add(cursor);
 
         background = new Asset("assets/background.png", new Vector2D(1920/2,1080/2), 0);
@@ -95,26 +93,37 @@ public class Main extends KYscreen implements MouseInputListener {
             lastSec = System.currentTimeMillis();
         }
 
-        if (curCircles < maxCircles) {
-            circles.add(new Circle(new Vector2D((randX.nextDouble(1920-80)+80/2)/1.25, (randY.nextDouble(1080-80)+80)/1.25), 80,80));
+        for (int c=curGood; c < maxGood; c++) {
+            circles.add(new Circle(new Vector2D((randX.nextDouble(1920-80)+80/2)/1.25, (randY.nextDouble(1080-80)+80)/1.25), 80,80, "good"));
             add(circles.get(circles.size()-1));
             circles.get(circles.size()-1).setVisible(true);
-            curCircles++;
+            curGood++;
+        }
+        for (int c=curBad; c < maxBad; c++) {
+            circles.add(new Circle(new Vector2D((randX.nextDouble(1920-80)+80/2)/1.25, (randY.nextDouble(1080-80)+80)/1.25), 80,80, "bad"));
+            add(circles.get(circles.size()-1));
+            circles.get(circles.size()-1).setVisible(true);
+            curBad++;
         }
         frames++;
     }
 
     @Override
     public void mousePressed(MouseEvent e) {
-        clickSound.setTime(0,0,35);
-        clickSound.play();
         for (int i=circles.size()-1; i>=0; i--){
-            if (cursor.inCircle(circles.get(i).getX(), circles.get(i).getY(), circles.get(i).getHeight())) {
-                score++;
+            if (circles.get(i).inCircle(new Vector2D(e.getX(), e.getY()))) {
+                if (circles.get(i).getName().equals("good")) {
+                    score++;
+                    curGood--;
+                } else {
+                    score--;
+                    curBad--;
+                }
                 scoreText.setText("Score: " + score);
-                curCircles--;
-                circles.get(i).delete();
+                circles.get(i).setVisible(false);
                 circles.remove(i);
+                clickSound.setTime(0,0,35);
+                clickSound.play();
                 break;
             }
         }
