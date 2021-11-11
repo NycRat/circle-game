@@ -4,39 +4,46 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Random;
+import java.awt.*;
 
 import javax.swing.event.MouseInputListener;
 
 import ky.Asset;
-import ky.AudioPlayer;
 import ky.KYscreen;
 import ky.Text;
 import ky.Vector2D;
 
 public class Main extends KYscreen implements MouseInputListener {
+
+    static int width = 0;
+    static int height = 0;
+
     public static void main (String[] args) {
-        System.setProperty("prism.allowhidpi", "false");
+        System.setProperty("sun.java2d.uiScale", "1.0");
+        GraphicsEnvironment gEnvironment = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        GraphicsDevice gDevice = gEnvironment.getDefaultScreenDevice();
+        width = gDevice.getDisplayMode().getWidth();
+        height = gDevice.getDisplayMode().getHeight();
         new Main();
     }
 
-    AudioPlayer backgroundMusic;
-    AudioPlayer clickSound;
     int frames=0;
     long lastSec = System.currentTimeMillis();
     Text fpsText;
     Text scoreText;
-    static int width = 1920;
-    static int height = 1080;
     Asset background;
-    Music musicAsset;
+    AudioAsset musicAsset;
+    AudioAsset sfxAsset;
     int score=0;
 
     final int maxBad=5;
     final int maxGood=10;
+    static int cS=120;
     int curBad=0;
     int curGood=0;
     Random randX;
     Random randY;
+    Random cSRand;
 
     Asset cursor;
     ArrayList <Circle> circles;
@@ -51,25 +58,46 @@ public class Main extends KYscreen implements MouseInputListener {
         setCursorVisible(false);
         setAlwaysOnTop(true);
 
-        musicAsset = new Music();
+        musicAsset = new AudioAsset(
+            "assets/Chopin - Nocturne op9 No2.wav",
+            new String[]{
+                "assets/music-1.png",
+                "assets/music0.png",
+            },
+            new Vector2D(width-75/2, 75/2)
+        );
         musicAsset.setVisible(true);
+        musicAsset.getAudioPlayer().setLoop(true);
+        musicAsset.getAudioPlayer().setTime(0,2,0);
+        musicAsset.getAudioPlayer().play();
         add(musicAsset);
 
-        fpsText = new Text("FPS: ?", new Font ("Arial", Font.PLAIN, 20), Color.black, new Vector2D(70, 15), 140, 30, 2);
+        sfxAsset = new AudioAsset(
+            "assets/click.wav",
+            new String[] {
+                "assets/sound-1.png",
+                "assets/sound0.png",
+                "assets/sound1.png",
+                "assets/sound2.png",
+            },
+            new Vector2D(width-musicAsset.getWidth()-75/2, 75/2)
+        );
+        sfxAsset.setVisible(true);
+        add(sfxAsset);
+
+        fpsText = new Text("FPS: ?", new Font ("Arial", Font.PLAIN, 30), Color.black, new Vector2D(100, 15), 200, 30, 2);
         fpsText.setVisible(true);
         add(fpsText);
 
-        scoreText = new Text("Score: 0", new Font ("Arial", Font.PLAIN, 20), Color.black, new Vector2D(70, 45), 140, 30, 2);
+        scoreText = new Text("Score: 0", new Font ("Arial", Font.PLAIN, 30), Color.black, new Vector2D(100, 45), 200, 30, 2);
         scoreText.setVisible(true);
         add(scoreText);
-
-        clickSound = new AudioPlayer("assets/click.wav");
 
         cursor = new Asset("assets/cursor.png", new Vector2D(0,0), 3);
         cursor.setVisible(true);
         add(cursor);
 
-        background = new Asset("assets/background.png", new Vector2D(1920/2,1080/2), 0);
+        background = new Asset("assets/background.png", new Vector2D(width/2,height/2), 0);
         background.setVisible(true);
         add(background);
 
@@ -78,6 +106,7 @@ public class Main extends KYscreen implements MouseInputListener {
 
         randX = new Random();
         randY = new Random();
+        cSRand = new Random();
 
         circles = new ArrayList<Circle>();
 
@@ -94,13 +123,15 @@ public class Main extends KYscreen implements MouseInputListener {
         }
 
         for (int c=curGood; c < maxGood; c++) {
-            circles.add(new Circle(new Vector2D((randX.nextDouble(1920-80)+80/2)/1.25, (randY.nextDouble(1080-80)+80)/1.25), 80,80, "good"));
+            cS = cSRand.nextInt(40)+80;
+            circles.add(new Circle(new Vector2D((randX.nextDouble(width-cS)+cS/2), (randY.nextDouble(height-cS)+cS/2)), cS,cS, "good"));
             add(circles.get(circles.size()-1));
             circles.get(circles.size()-1).setVisible(true);
             curGood++;
         }
         for (int c=curBad; c < maxBad; c++) {
-            circles.add(new Circle(new Vector2D((randX.nextDouble(1920-80)+80/2)/1.25, (randY.nextDouble(1080-80)+80)/1.25), 80,80, "bad"));
+            cS = cSRand.nextInt(40)+80;
+            circles.add(new Circle(new Vector2D((randX.nextDouble(width-cS)+cS/2), (randY.nextDouble(height-cS)+cS/2)), cS,cS, "bad"));
             add(circles.get(circles.size()-1));
             circles.get(circles.size()-1).setVisible(true);
             curBad++;
@@ -122,8 +153,8 @@ public class Main extends KYscreen implements MouseInputListener {
                 scoreText.setText("Score: " + score);
                 circles.get(i).setVisible(false);
                 circles.remove(i);
-                clickSound.setTime(0,0,35);
-                clickSound.play();
+                sfxAsset.getAudioPlayer().setTime(0, 0, 35);
+                sfxAsset.getAudioPlayer().play();
                 break;
             }
         }
@@ -151,10 +182,10 @@ public class Main extends KYscreen implements MouseInputListener {
                 musicAsset.mute();
                 break;
             case KeyEvent.VK_UP:
-                musicAsset.increaseVolume();
+                sfxAsset.increaseVolume();
                 break;
             case KeyEvent.VK_DOWN:
-                musicAsset.decreaseVolume();
+                sfxAsset.decreaseVolume();
                 break;
         }
     }

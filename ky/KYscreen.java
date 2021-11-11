@@ -270,7 +270,6 @@ public abstract class KYscreen extends JFrame {
 	}
 
 	public void setFullScreen (boolean fullscreen) {
-		// calling this will destroy all the window's components
 		if (fullscreen) {
 			isFullScreen = true;
 			dispose();

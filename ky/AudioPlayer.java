@@ -18,6 +18,7 @@ public class AudioPlayer {
     }
 
     public void setAudioFile (String audioFile) {
+
         try {
             if (clip!=null) {
                 clip.stop();
@@ -27,6 +28,7 @@ public class AudioPlayer {
             clip.open(audioStream);
         } catch (UnsupportedAudioFileException e) {
             System.out.println(e.getMessage());
+            System.out.println("Only supports .wave .aiff .au and midi related files");
         } catch (IOException e) {
             System.out.println(e.getMessage());
         } catch (LineUnavailableException e) {
